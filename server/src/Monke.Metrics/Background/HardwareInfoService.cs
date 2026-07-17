@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Management;
 
 using Hardware.Info;
 
@@ -25,8 +26,16 @@ namespace Monke.Metrics.Background
 		/// <inheritdoc/>
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
-			// Initial refresh -> maybe 21 seconds on initial call on some systems (WMI limitation)
-			this.hardwareInfo.RefreshAll(); 
+			try
+			{
+				// Initial refresh -> maybe 21 seconds on initial call on some systems (WMI limitation)
+				this.hardwareInfo.RefreshAll();
+			}
+			catch (ManagementException)
+			{
+				this.logger.LogWarning("WMI Timeout while collecting hardware info");
+			}
+			
 
 			using PeriodicTimer timer = new PeriodicTimer(RefreshInterval);
 			while (await timer.WaitForNextTickAsync(stoppingToken))

@@ -44,13 +44,14 @@ namespace Monke.Metrics
 			// ...
 
 			WebApplication app = builder.Build();
+			_ = app.UseExceptionHandler();
 			_ = app.UseCors("Network");
 			_ = app.UseRateLimiter();
-			_ = app.UseExceptionHandler();
+			_ = app.UseStaticFiles();
 			_ = app.UseResponseCompression();
 			_ = app.MapHealthChecks("monke/metrics/health");
 			_ = app.MapControllers().RequireRateLimiting("fixed");
-
+			_ = app.MapFallbackToFile("index.html");
 			// Migrationen anwenden
 			using (IServiceScope scope = app.Services.CreateScope())
 			{
