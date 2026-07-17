@@ -12,8 +12,8 @@ namespace Monke.Metrics.Dtos.Cpu
 		public CpuHistoryResponse()
 		{
 			this.CpuIndex = 0;
-			this.StartDateTime = DateTimeOffset.UtcNow;
-			this.EndDateTime = DateTimeOffset.UtcNow;
+			this.StartDateTime = DateTimeOffset.MinValue;
+			this.EndDateTime = DateTimeOffset.MinValue;
 			this.Entries = [];
 		}
 

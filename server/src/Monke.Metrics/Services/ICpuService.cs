@@ -7,5 +7,8 @@ namespace Monke.Metrics.Services
 		List<CpuInfoResponse> GetAllCpuInfos();
 		CpuInfoResponse GetSingleCpuInfo(int index);
 		Task<CpuHistoryResponse> GetSingleCpuHistory(int index, DateTimeOffset startDatetime, DateTimeOffset endDatetime);
+		List<CpuCoreInfoResponse> GetAllCpuCores(int cpuIndex);
+		CpuCoreInfoResponse GetSingleCpuCore(int cpuIndex, int coreIndex);
+		CpuCoreHistoryResponse GetSingleCpuCoreHistory(int cpuIndex, int coreIndex, DateTimeOffset startDatetime, DateTimeOffset endDatetime);
 	}
 }

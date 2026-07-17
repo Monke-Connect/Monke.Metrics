@@ -2,14 +2,14 @@
 
 namespace Monke.Metrics.Dtos.Cpu
 {
-	public readonly record struct CpuCoreResponse
+	public readonly record struct CpuCoreInfoResponse
 	{
 		public int CpuIndex { get; init; }
 		public int CoreIndex { get; init; }
 		public string Name { get; init; }
 		public DateTimeOffset LastUpdated { get; init; }
 
-		public CpuCoreResponse(int cpuIndex, int coreIndex, CpuCore core, DateTimeOffset lastUpdated)
+		public CpuCoreInfoResponse(int cpuIndex, int coreIndex, CpuCore core, DateTimeOffset lastUpdated)
 		{
 			ArgumentOutOfRangeException.ThrowIfNegative(cpuIndex);
 			ArgumentOutOfRangeException.ThrowIfNegative(coreIndex);

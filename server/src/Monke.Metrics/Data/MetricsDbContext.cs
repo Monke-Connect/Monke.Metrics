@@ -17,6 +17,12 @@ namespace Monke.Metrics.Data
 					v => v.UtcTicks,
 					v => new DateTimeOffset(v, TimeSpan.Zero));
 
+			_ = modelBuilder.Entity<CpuCoreHistoryEntry>()
+				.Property(e => e.Timestamp)
+				.HasConversion(
+					v => v.UtcTicks,
+					v => new DateTimeOffset(v, TimeSpan.Zero));
+
 			base.OnModelCreating(modelBuilder);
 		}
 	}

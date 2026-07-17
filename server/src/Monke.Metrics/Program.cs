@@ -58,8 +58,15 @@ namespace Monke.Metrics
 				dbContext.Database.Migrate();
 			}
 
-			app.Run();
-
+			try
+			{
+				app.Run();
+			}
+			catch (Exception)
+			{
+				_ = Console.ReadKey();
+				throw;
+			}
 		}
 
 

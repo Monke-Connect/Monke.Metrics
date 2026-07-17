@@ -7,7 +7,7 @@ namespace Monke.Metrics.Exceptions
 	{
 		public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
 		{
-			logger.LogWarning(exception, "An exception occurred while processing the request.");
+			logger.LogWarning("An exception occurred while processing the request: {message}", exception.Message);
 			httpContext.Response.StatusCode = exception switch
 			{
 				BadRequestException => StatusCodes.Status400BadRequest,

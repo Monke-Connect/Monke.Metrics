@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -20,7 +19,7 @@ namespace Monke.Metrics.Migrations
                     CpuIndex = table.Column<int>(type: "INTEGER", nullable: false),
                     CoreIndex = table.Column<int>(type: "INTEGER", nullable: false),
                     PercentProcessorTime = table.Column<ulong>(type: "INTEGER", nullable: false),
-                    Timestamp = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
+                    Timestamp = table.Column<long>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
