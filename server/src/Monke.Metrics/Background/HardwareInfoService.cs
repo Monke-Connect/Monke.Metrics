@@ -6,8 +6,9 @@ using Hardware.Info;
 using Microsoft.EntityFrameworkCore;
 
 using Monke.Metrics.Caches;
-using Monke.Metrics.Data;
+using Monke.Metrics.Database;
 using Monke.Metrics.Models.Cpu;
+using Monke.Metrics.Models.Memory;
 
 namespace Monke.Metrics.Background
 {
@@ -35,7 +36,7 @@ namespace Monke.Metrics.Background
 			{
 				this.logger.LogWarning("WMI Timeout while collecting hardware info");
 			}
-			
+
 
 			using PeriodicTimer timer = new PeriodicTimer(RefreshInterval);
 			while (await timer.WaitForNextTickAsync(stoppingToken))
@@ -48,6 +49,7 @@ namespace Monke.Metrics.Background
 
 				// Update the values in the cache and database
 				await this.UpdateCpuValuesAsync(context, stoppingToken);
+				await this.UpdateMemoryValuesAsync(context, stoppingToken);
 			}
 		}
 
@@ -58,6 +60,8 @@ namespace Monke.Metrics.Background
 				this.logger.LogInformation("Refreshing hardware info.");
 
 			this.hardwareInfo.RefreshCPUList();
+			this.hardwareInfo.RefreshMemoryStatus();
+			this.hardwareInfo.RefreshMemoryList();
 			return;
 		}
 
@@ -66,14 +70,14 @@ namespace Monke.Metrics.Background
 		{
 			// Update the cpu info that is saved in the cache
 			if (this.logger.IsEnabled(LogLevel.Debug))
-				this.logger.LogInformation("Updating cached cpu values.");
+				this.logger.LogDebug("Updating cached cpu values.");
 
 			ReadOnlyCollection<CPU> cpus = this.hardwareInfo.CpuList.AsReadOnly();
 			this.caches.CpusCache.Set(cpus); // lock in there
 
 			// Update the cpu history that is saved in the database
 			if (this.logger.IsEnabled(LogLevel.Debug))
-				this.logger.LogInformation("Updating persisted cpu history.");
+				this.logger.LogDebug("Updating persisted cpu history.");
 			try
 			{
 				for (int cpuIndex = 0; cpuIndex < cpus.Count; cpuIndex++)
@@ -88,6 +92,35 @@ namespace Monke.Metrics.Background
 						_ = await context.CpuCoreHistory.AddAsync(new CpuCoreHistoryEntry(cpuIndex, coreIndex, cpu.CpuCoreList[coreIndex]), stoppingToken);
 					}
 				}
+				_ = await context.SaveChangesAsync(stoppingToken);
+			}
+			catch (DbUpdateException ex)
+			{
+				this.logger.LogError(ex, "An error occurred while updating the database.");
+			}
+		}
+
+		private async Task UpdateMemoryValuesAsync(MetricsDbContext context, CancellationToken stoppingToken)
+		{
+			// Update the memory info that is saved in the cache
+			if (this.logger.IsEnabled(LogLevel.Debug))
+				this.logger.LogDebug("Updating cached memory values.");
+
+			// Update cached status instance
+			MemoryStatus memoryStatus = this.hardwareInfo.MemoryStatus;
+			this.caches.MemoryStatusCache.Set(memoryStatus); // lock in there
+
+			// Update cached memory instances
+			ReadOnlyCollection<Memory> memories = this.hardwareInfo.MemoryList.AsReadOnly();
+			this.caches.MemoriesCache.Set(memories); // lock in there
+
+			// Update the memory history that is saved in the database
+			if (this.logger.IsEnabled(LogLevel.Debug))
+				this.logger.LogInformation("Updating persisted memory history.");
+			try
+			{
+				// Table: MemoryHistory
+				_ = await context.MemoryHistory.AddAsync(new MemoryHistoryEntry(memoryStatus), stoppingToken);
 				_ = await context.SaveChangesAsync(stoppingToken);
 			}
 			catch (DbUpdateException ex)

@@ -8,7 +8,7 @@ namespace Monke.Metrics.Caches
 		/// Gets the cached value and the last updated time. If the cached value is null, it means that the cache has not been initialized yet.
 		/// </summary>
 		/// <returns>A tuple of the cached data and the last time it was updated.</returns>
-		(IReadOnlyList<CPU> Cpus, DateTime LastUpdated) Get();
+		(T Value, DateTime LastUpdated) Get();
 
 		/// <summary>
 		/// Updates the cached value and the last updated time. This method should be called when the cached value is updated.

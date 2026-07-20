@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using Monke.Metrics.Background;
-using Monke.Metrics.Data;
+using Monke.Metrics.Database;
 using Monke.Metrics.Exceptions;
 using Monke.Metrics.Extensions;
 
@@ -42,7 +42,7 @@ namespace Monke.Metrics
 				_ = app.UseStaticFiles();
 				_ = app.UseResponseCompression();
 				_ = app.MapHealthChecks("monke/metrics/health");
-				_ = app.MapControllers().RequireRateLimiting("fixed");
+				_ = app.MapControllers();
 				_ = app.MapFallbackToFile("index.html");
 
 				// Apply database migrations on startup and start the application

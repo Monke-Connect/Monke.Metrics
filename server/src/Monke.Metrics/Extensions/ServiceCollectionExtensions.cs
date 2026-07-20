@@ -4,7 +4,7 @@ using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 
-using Monke.Metrics.Data;
+using Monke.Metrics.Database;
 
 using Serilog;
 

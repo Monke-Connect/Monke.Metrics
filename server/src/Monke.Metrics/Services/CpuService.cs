@@ -3,7 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 
 using Monke.Metrics.Caches;
-using Monke.Metrics.Data;
+using Monke.Metrics.Database;
 using Monke.Metrics.Dtos.Cpu;
 using Monke.Metrics.Exceptions;
 using Monke.Metrics.Extensions;
@@ -34,7 +34,7 @@ namespace Monke.Metrics.Services
 		public CpuInfoResponse GetSingleCpuInfo(int index)
 		{
 			if (index < 0)
-				throw new BadRequestException($"Requested CPU index {index} is below zero..");
+				throw new BadRequestException($"Requested CPU index {index} is below zero.");
 
 			(IReadOnlyList<CPU> cpus, DateTime lastUpdated) = this.caches.CpusCache.Get();
 			try
@@ -48,7 +48,7 @@ namespace Monke.Metrics.Services
 		}
 
 
-		public async Task<CpuHistoryResponse> GetSingleCpuHistory(int index, DateTimeOffset startDatetime, DateTimeOffset endDatetime)
+		public CpuHistoryResponse GetSingleCpuHistory(int index, DateTimeOffset startDatetime, DateTimeOffset endDatetime)
 		{
 			// Validate parameters
 			if (index < 0)
@@ -68,9 +68,6 @@ namespace Monke.Metrics.Services
 				.Where(entry => entry.Timestamp <= endDatetime)
 				.OrderBy(entry => entry.Timestamp);
 			List<CpuHistoryEntry> out_data = [.. data];
-
-			if (out_data.Count == 0)
-				throw new NotFoundException($"No CPU history found for CPU {index}.");
 
 			// Create response object and return it
 			return new CpuHistoryResponse(index, startDatetime, endDatetime, out_data);

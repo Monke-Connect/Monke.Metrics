@@ -65,7 +65,7 @@ namespace Monke.Metrics.Controllers
 			if (!end.HasValue)
 				end = DateTimeOffset.UtcNow;
 
-			CpuHistoryResponse cpuHistoryResponse = await this._cpuService.GetSingleCpuHistory(cpuIndex, start.Value, end.Value);
+			CpuHistoryResponse cpuHistoryResponse = this._cpuService.GetSingleCpuHistory(cpuIndex, start.Value, end.Value);
 			return this.Ok(cpuHistoryResponse);
 		}
 
