@@ -1,8 +1,3 @@
-using System.Threading.RateLimiting;
-
-using Microsoft.AspNetCore.HttpLogging;
-using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 
 using Monke.Metrics.Background;
@@ -10,101 +5,71 @@ using Monke.Metrics.Data;
 using Monke.Metrics.Exceptions;
 using Monke.Metrics.Extensions;
 
+using Serilog;
+
 namespace Monke.Metrics
 {
 	public class Program
 	{
 		public static void Main(string[] args)
 		{
-			WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-			_ = builder.Services.AddControllers();
-			_ = builder.Services.AddHealthChecks();
-			_ = builder.Services.AddAnnotatedServices();
-			_ = builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-			_ = builder.Services.AddProblemDetails();
-			_ = builder.Services.AddHostedService<HardwareInfoService>();
-			ConfigureRateLimiting(builder);
-			ConfigureLogging(builder);
-			ConfigureDatabaseContext(builder);
-
-			_ = builder.Services.AddCors(options =>
-				options.AddPolicy("Network", policy =>
-				{
-					_ = policy
-						.AllowAnyOrigin()
-						.AllowAnyHeader()
-						.AllowAnyMethod();
-				})
-			);
-			_ = builder.Services.AddResponseCompression(options =>
-			{
-				options.Providers.Add<BrotliCompressionProvider>();
-				options.Providers.Add<GzipCompressionProvider>();
-			});
-			// ...
-
-			WebApplication app = builder.Build();
-			_ = app.UseExceptionHandler();
-			_ = app.UseCors("Network");
-			_ = app.UseRateLimiter();
-			_ = app.UseStaticFiles();
-			_ = app.UseResponseCompression();
-			_ = app.MapHealthChecks("monke/metrics/health");
-			_ = app.MapControllers().RequireRateLimiting("fixed");
-			_ = app.MapFallbackToFile("index.html");
-			// Migrationen anwenden
-			using (IServiceScope scope = app.Services.CreateScope())
-			{
-				MetricsDbContext dbContext = scope.ServiceProvider.GetRequiredService<MetricsDbContext>();
-				dbContext.Database.Migrate();
-			}
+			// Bootstrap logger for the application startup
+			Log.Logger = new LoggerConfiguration()
+				.WriteTo.Console()
+				.CreateBootstrapLogger();
 
 			try
 			{
+				Log.Information("Bootstraping application.");
+
+				WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
+				_ = builder.ConfigureLogging();
+				_ = builder.Services.AddControllers();
+				_ = builder.Services.AddHealthChecks();
+				_ = builder.Services.AddAnnotatedServices();
+				_ = builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+				_ = builder.Services.AddProblemDetails();
+				_ = builder.Services.AddHostedService<HardwareInfoService>();
+				_ = builder.Services.ConfigureRateLimiting();
+				_ = builder.Services.ConfigureDatabaseContext(builder);
+				_ = builder.ConfigureNetworkHandling();
+
+				WebApplication app = builder.Build();
+				_ = app.UseSerilogRequestLogging();
+				_ = app.UseExceptionHandler();
+				_ = app.UseCors("Network");
+				_ = app.UseRateLimiter();
+				_ = app.UseStaticFiles();
+				_ = app.UseResponseCompression();
+				_ = app.MapHealthChecks("monke/metrics/health");
+				_ = app.MapControllers().RequireRateLimiting("fixed");
+				_ = app.MapFallbackToFile("index.html");
+
+				// Apply database migrations on startup and start the application
+				ApplyMigrations(app);
 				app.Run();
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				_ = Console.ReadKey();
-				throw;
+				Log.Fatal(ex, "Application ended with uncaught exception!");
+			}
+			finally
+			{
+				Log.CloseAndFlush();
 			}
 		}
 
-
-		private static void ConfigureRateLimiting(WebApplicationBuilder builder)
+		private static void ApplyMigrations(WebApplication app)
 		{
-			_ = builder.Services.AddRateLimiter(options =>
+			// Check wether /Data folder exists, if not create it
+			if (!Directory.Exists("Data"))
 			{
-				_ = options.AddFixedWindowLimiter("fixed", opt =>
-				{
-					opt.PermitLimit = 4;
-					opt.Window = TimeSpan.FromSeconds(12);
-					opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
-					opt.QueueLimit = 2;
-				});
-			});
-		}
+				_ = Directory.CreateDirectory("Data");
+			}
 
-		private static void ConfigureLogging(WebApplicationBuilder builder)
-		{
-			// Logging
-			_ = builder.Logging.ClearProviders();
-			_ = builder.Logging.AddConsole();
-
-			_ = builder.Services.AddHttpLogging(options =>
-			{
-				options.LoggingFields = HttpLoggingFields.RequestPath
-									   | HttpLoggingFields.RequestMethod
-									   | HttpLoggingFields.ResponseStatusCode
-									   | HttpLoggingFields.Duration;
-			});
-		}
-
-		private static void ConfigureDatabaseContext(WebApplicationBuilder builder)
-		{
-			_ = builder.Services.AddDbContext<MetricsDbContext>(options =>
-				_ = options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"))
-			);
+			using IServiceScope scope = app.Services.CreateScope();
+			MetricsDbContext dbContext = scope.ServiceProvider.GetRequiredService<MetricsDbContext>();
+			dbContext.Database.Migrate();
 		}
 	}
 }
