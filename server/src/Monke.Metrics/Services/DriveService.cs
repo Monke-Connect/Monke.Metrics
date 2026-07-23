@@ -76,5 +76,30 @@ namespace Monke.Metrics.Services
 
 			return new PartitionInfoResponse(partition, lastUpdated);
 		}
+
+
+		public List<VolumeInfoResponse> GetAllVolumeInfos()
+		{
+			List<VolumeInfoResponse> volumeList = [];
+			(IReadOnlyList<Volume> volumes, DateTime lastUpdated) = this.caches.DrivesCache.GetOrUpdateVolumeCache();
+			foreach (Volume v in volumes)
+			{
+				volumeList.Add(new VolumeInfoResponse(v, lastUpdated));
+			}
+			return volumeList;
+		}
+
+
+		public VolumeInfoResponse GetSingleVolumeInfo(string name)
+		{
+			if (string.IsNullOrWhiteSpace(name))
+				throw new BadRequestException("The provided volume name can't be empty or whitespace.");
+
+			(IReadOnlyList<Volume> volumes, DateTime lastUpdated) = this.caches.DrivesCache.GetOrUpdateVolumeCache();
+			Volume volume = volumes.FirstOrDefault(v => v.Name == name)
+				?? throw new NotFoundException($"Requested volume with name {name} does not exist.");
+
+			return new VolumeInfoResponse(volume, lastUpdated);
+		}
 	}
 }

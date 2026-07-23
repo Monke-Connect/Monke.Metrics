@@ -1,0 +1,5 @@
+$kind: http-request
+name: monke/metrics/volumes
+url: http://{{baseURL}}/monke/metrics/volumes
+method: GET
+order: 1784804739389

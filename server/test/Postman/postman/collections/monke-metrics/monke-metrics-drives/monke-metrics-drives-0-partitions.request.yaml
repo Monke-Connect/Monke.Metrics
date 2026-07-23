@@ -1,0 +1,5 @@
+$kind: http-request
+name: monke/metrics/drives/0/partitions
+url: http://{{baseURL}}/monke/metrics/drives/0/partitions
+method: GET
+order: 3827957686484133

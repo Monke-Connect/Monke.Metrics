@@ -1,0 +1,5 @@
+$kind: http-request
+name: monke/metrics/drives
+url: http://{{baseURL}}/monke/metrics/drives
+method: GET
+order: 1784802920739

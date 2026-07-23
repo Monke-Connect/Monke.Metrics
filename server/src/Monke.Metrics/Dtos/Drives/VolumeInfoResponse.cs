@@ -30,11 +30,6 @@ namespace Monke.Metrics.Dtos.Drives
 		public bool IsCompressed { get; init; }
 
 		/// <summary>
-		/// Space, in bytes, available on the logical disk.
-		/// </summary>
-		public ulong FreeSpace { get; init; }
-
-		/// <summary>
 		/// Size of the disk drive.
 		/// </summary>
 		public ulong Size { get; init; }
@@ -52,20 +47,18 @@ namespace Monke.Metrics.Dtos.Drives
 			this.SerialNumber = string.Empty;
 			this.FileSystem = string.Empty;
 			this.IsCompressed = false;
-			this.FreeSpace = 0;
 			this.Size = 0;
 			this.LastUpdated = DateTimeOffset.MinValue;
 		}
 
 
-		public VolumeInfoResponse(int diskIndex, int partitionIndex, Volume volume, DateTimeOffset timestamp)
+		public VolumeInfoResponse(Volume volume, DateTimeOffset timestamp)
 		{
 			this.Name = volume.Name;
 			this.Description = volume.Description;
 			this.SerialNumber = volume.VolumeSerialNumber;
 			this.FileSystem = volume.FileSystem;
 			this.IsCompressed = volume.Compressed;
-			this.FreeSpace = volume.FreeSpace;
 			this.Size = volume.Size;
 			this.LastUpdated = timestamp;
 		}
