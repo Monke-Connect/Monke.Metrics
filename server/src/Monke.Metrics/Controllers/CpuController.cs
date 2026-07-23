@@ -92,7 +92,7 @@ namespace Monke.Metrics.Controllers
 		/// <summary>
 		/// Gets information for a single core of a single CPU.
 		/// </summary>
-		[HttpGet("{cpuIndex:int}/cores/{coreIndex}")]
+		[HttpGet("{cpuIndex:int}/cores/{coreIndex:int}")]
 		[ProducesResponseType(typeof(CpuCoreInfoResponse), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public IActionResult GetSingleCpuCore(int cpuIndex, int coreIndex)
@@ -105,7 +105,7 @@ namespace Monke.Metrics.Controllers
 		/// <summary>
 		/// Gets the historical metrics for a single CPU core within a given time range.
 		/// </summary>
-		[HttpGet("{cpuIndex:int}/cores/{coreIndex}/history")]
+		[HttpGet("{cpuIndex:int}/cores/{coreIndex:int}/history")]
 		public IActionResult GetSingleCpuCoreHistory(int cpuIndex, int coreIndex,
 			[FromQuery(Name = "start")] DateTimeOffset? start,
 			[FromQuery(Name = "end")] DateTimeOffset? end)

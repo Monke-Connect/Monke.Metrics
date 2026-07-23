@@ -21,13 +21,13 @@ namespace Monke.Metrics.Services
 
 		public List<CpuInfoResponse> GetAllCpuInfos()
 		{
-			List<CpuInfoResponse> out_list = [];
+			List<CpuInfoResponse> cpuList = [];
 			(IReadOnlyList<CPU> cpus, DateTime lastUpdated) = this.caches.CpusCache.Get();
 			for (int i = 0; i < cpus.Count; i++)
 			{
-				out_list.Add(new CpuInfoResponse(i, cpus[i], lastUpdated));
+				cpuList.Add(new CpuInfoResponse(i, cpus[i], lastUpdated));
 			}
-			return out_list;
+			return cpuList;
 		}
 
 
@@ -78,16 +78,16 @@ namespace Monke.Metrics.Services
 			if (cpuIndex < 0)
 				throw new BadRequestException($"Requested CPU index {cpuIndex} is below zero..");
 
-			List<CpuCoreInfoResponse> out_list = [];
+			List<CpuCoreInfoResponse> coreList = [];
 			(IReadOnlyList<CPU> cpus, DateTime lastUpdated) = this.caches.CpusCache.Get();
 			try
 			{
 				CPU cpu = cpus[cpuIndex];
 				for (int i = 0; i < cpu.CpuCoreList.Count; i++)
 				{
-					out_list.Add(new CpuCoreInfoResponse(cpuIndex, i, cpu.CpuCoreList[i], lastUpdated));
+					coreList.Add(new CpuCoreInfoResponse(cpuIndex, i, cpu.CpuCoreList[i], lastUpdated));
 				}
-				return out_list;
+				return coreList;
 			}
 			catch (ArgumentOutOfRangeException)
 			{
@@ -138,13 +138,13 @@ namespace Monke.Metrics.Services
 				.Where(entry => entry.Timestamp >= startDatetime)
 				.Where(entry => entry.Timestamp <= endDatetime)
 				.OrderBy(entry => entry.Timestamp);
-			List<CpuCoreHistoryEntry> out_data = [.. data];
+			List<CpuCoreHistoryEntry> coreList = [.. data];
 
-			if (out_data.Count == 0)
+			if (coreList.Count == 0)
 				throw new NotFoundException($"No CPU-Core history found for CPU {cpuIndex} and Core {coreIndex}.");
 
 			// Return result
-			return new CpuCoreHistoryResponse(cpuIndex, coreIndex, startDatetime, endDatetime, out_data);
+			return new CpuCoreHistoryResponse(cpuIndex, coreIndex, startDatetime, endDatetime, coreList);
 		}
 	}
 }

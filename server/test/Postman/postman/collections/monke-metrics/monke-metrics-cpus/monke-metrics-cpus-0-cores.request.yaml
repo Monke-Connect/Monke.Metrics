@@ -1,0 +1,6 @@
+$kind: http-request
+name: monke/metrics/cpus/0/cores
+url: http://{{baseURL}}/monke/metrics/cpus/0/cores
+method: GET
+settings: {}
+order: 3000

@@ -1,0 +1,8 @@
+workspace:
+  id: bdb4b078-b2d0-4ff0-8f31-10036acfd583
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/monke-metrics: 46287755-29363096-8019-4333-a31f-a2f0e35cc00c
