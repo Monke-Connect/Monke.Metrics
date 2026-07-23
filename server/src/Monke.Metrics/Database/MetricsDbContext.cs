@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
 using Monke.Metrics.Models.Cpu;
+using Monke.Metrics.Models.Drives;
 using Monke.Metrics.Models.Memory;
 
 namespace Monke.Metrics.Database
@@ -12,6 +13,8 @@ namespace Monke.Metrics.Database
 		public DbSet<CpuCoreHistoryEntry> CpuCoreHistory => this.Set<CpuCoreHistoryEntry>();
 
 		public DbSet<MemoryHistoryEntry> MemoryHistory => this.Set<MemoryHistoryEntry>();
+
+		public DbSet<VolumeHistoryEntry> VolumeHistory => this.Set<VolumeHistoryEntry>();
 
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,6 +32,12 @@ namespace Monke.Metrics.Database
 					v => new DateTimeOffset(v, TimeSpan.Zero));
 
 			_ = modelBuilder.Entity<MemoryHistoryEntry>()
+				.Property(e => e.Timestamp)
+				.HasConversion(
+					v => v.UtcTicks,
+					v => new DateTimeOffset(v, TimeSpan.Zero));
+
+			_ = modelBuilder.Entity<VolumeHistoryEntry>()
 				.Property(e => e.Timestamp)
 				.HasConversion(
 					v => v.UtcTicks,

@@ -36,6 +36,8 @@ namespace Monke.Metrics.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CpuIndex", "CoreIndex", "Timestamp");
+
                     b.ToTable("CpuCoreHistory");
                 });
 
@@ -59,7 +61,32 @@ namespace Monke.Metrics.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CpuIndex", "Timestamp");
+
                     b.ToTable("CpuHistory");
+                });
+
+            modelBuilder.Entity("Monke.Metrics.Models.Drives.VolumeHistoryEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<ulong>("FreeSpace")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name", "Timestamp");
+
+                    b.ToTable("VolumeHistory");
                 });
 
             modelBuilder.Entity("Monke.Metrics.Models.Memory.MemoryHistoryEntry", b =>

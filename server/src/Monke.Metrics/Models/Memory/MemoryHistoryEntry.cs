@@ -5,15 +5,8 @@ using Hardware.Info;
 
 namespace Monke.Metrics.Models.Memory
 {
-	public class MemoryHistoryEntry
+	public class MemoryHistoryEntry : BaseModel
 	{
-		/// <summary>
-		/// Unique identifier for the memory history entry.
-		/// </summary>
-		[Key]
-		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-		public int Id { get; set; }
-
 		/// <summary>
 		/// The amount of physical memory currently available, in bytes. 
 		/// </summary>
@@ -38,6 +31,7 @@ namespace Monke.Metrics.Models.Memory
 		[Required]
 		public DateTimeOffset Timestamp { get; set; }
 
+
 		public MemoryHistoryEntry()
 		{
 			this.Id = 0;
@@ -47,13 +41,14 @@ namespace Monke.Metrics.Models.Memory
 			this.Timestamp = DateTimeOffset.MinValue;
 		}
 
+
 		public MemoryHistoryEntry(MemoryStatus status)
 		{
 			this.Id = 0; // Will be set by EFCore when the entry is added to the database
 			this.AvailablePhysical = status.AvailablePhysical;
 			this.AvailablePageFile = status.AvailablePageFile;
 			this.AvailableVirtual = status.AvailableVirtual;
-			this.Timestamp = DateTimeOffset.Now;
+			this.Timestamp = DateTimeOffset.UtcNow;
 		}
 	}
 }

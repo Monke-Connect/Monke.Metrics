@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using Monke.Metrics.Dtos.Cpu;
+using Monke.Metrics.Dtos.Cpus;
 using Monke.Metrics.Dtos.Memory;
 using Monke.Metrics.Services;
 
@@ -9,7 +9,7 @@ namespace Monke.Metrics.Controllers
 	/// <summary>
 	/// Provides endpoints for reading memory information and historical metrics.
 	/// </summary>
-	[Route("monke/metrics/memories")]
+	[Route("monke/metrics/memory")]
 	[ApiController]
 	public class MemoryController(ILogger<MemoryController> logger, IMemoryService memoryService) : ControllerBase
 	{

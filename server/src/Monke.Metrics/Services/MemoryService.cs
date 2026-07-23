@@ -21,7 +21,7 @@ namespace Monke.Metrics.Services
 		public List<MemoryInfoResponse> GetAllMemoryInfos()
 		{
 			List<MemoryInfoResponse> memoryInfos = [];
-			(IReadOnlyList<Hardware.Info.Memory> value, DateTime lastUpdated) = this.caches.MemoriesCache.Get();
+			(IReadOnlyList<Hardware.Info.Memory> value, DateTime lastUpdated) = this.caches.MemoryCache.Get();
 			for (int i = 0; i < value.Count; i++)
 			{
 				memoryInfos.Add(new MemoryInfoResponse(i, value[i], lastUpdated));
@@ -34,7 +34,7 @@ namespace Monke.Metrics.Services
 			if (index < 0)
 				throw new BadRequestException($"Requested memory index {index} is below zero.");
 
-			(IReadOnlyList<Hardware.Info.Memory> value, DateTime lastUpdated) = this.caches.MemoriesCache.Get();
+			(IReadOnlyList<Hardware.Info.Memory> value, DateTime lastUpdated) = this.caches.MemoryCache.Get();
 			try
 			{
 				return new MemoryInfoResponse(index, value[index], lastUpdated);

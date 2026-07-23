@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 using Monke.Metrics.Caches;
 using Monke.Metrics.Database;
-using Monke.Metrics.Dtos.Cpu;
+using Monke.Metrics.Dtos.Cpus;
 using Monke.Metrics.Exceptions;
 using Monke.Metrics.Extensions;
 using Monke.Metrics.Models.Cpu;

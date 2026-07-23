@@ -2,17 +2,17 @@
 
 using Monke.Metrics.Extensions;
 
-namespace Monke.Metrics.Caches.Cpu
+namespace Monke.Metrics.Caches.Drives
 {
-	[RegisterService(ServiceLifetime.Singleton, typeof(ICpusCache))]
-	public class CpusCache : ICpusCache
+	[RegisterService(ServiceLifetime.Singleton, typeof(IDrivesCache))]
+	public class DrivesCache : IDrivesCache
 	{
 		private readonly Lock @lock = new Lock();
-		private IReadOnlyList<CPU> value = [];
+		private IReadOnlyList<Drive> value = [];
 		private DateTime lastUpdated = DateTime.MinValue;
 
 		/// <inheritdoc/>
-		public void Set(IReadOnlyList<CPU> value)
+		public void Set(IReadOnlyList<Drive> value)
 		{
 			lock (this.@lock)
 			{
@@ -22,7 +22,7 @@ namespace Monke.Metrics.Caches.Cpu
 		}
 
 		/// <inheritdoc/>
-		public (IReadOnlyList<CPU> Value, DateTime LastUpdated) Get()
+		public (IReadOnlyList<Drive> Value, DateTime LastUpdated) Get()
 		{
 			lock (this.@lock)
 			{

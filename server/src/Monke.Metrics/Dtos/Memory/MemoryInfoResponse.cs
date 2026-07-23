@@ -2,14 +2,14 @@
 
 namespace Monke.Metrics.Dtos.Memory
 {
-	public readonly record struct MemoryInfoResponse
+	public sealed record MemoryInfoResponse
 	{
 		public int Index { get; init; }
 
 		/// <summary> 
 		/// Physically labeled bank where the memory is located. 
 		/// </summary>
-		public string BankLabel { get; init; } = string.Empty;
+		public string BankLabel { get; init; }
 
 		/// <summary> Total capacity of the physical memory in bytes.
 		/// </summary>
@@ -28,7 +28,7 @@ namespace Monke.Metrics.Dtos.Memory
 		/// <summary>
 		/// Name of the organization responsible for producing the physical element.
 		/// </summary>
-		public string Manufacturer { get; init; } = string.Empty;
+		public string Manufacturer { get; init; }
 
 		/// <summary>
 		/// The maximum operating voltage for this device, in millivolts, or 0, if the voltage is unknown.
@@ -43,12 +43,12 @@ namespace Monke.Metrics.Dtos.Memory
 		/// <summary>
 		/// Part number assigned by the organization responsible for producing or manufacturing the physical element.
 		/// </summary>
-		public string PartNumber { get; init; } = string.Empty;
+		public string PartNumber { get; init; }
 
 		/// <summary>
 		/// Manufacturer-allocated number to identify the physical element.
 		/// </summary>
-		public string SerialNumber { get; init; } = string.Empty;
+		public string SerialNumber { get; init; }
 
 		/// <summary>
 		/// Type of physical memory.
@@ -60,7 +60,11 @@ namespace Monke.Metrics.Dtos.Memory
 		/// </summary>
 		public uint Speed { get; init; }
 
-		public DateTimeOffset Timestamp { get; init; }
+		/// <summary>
+		/// The timestamp when the data was recorded.
+		/// </summary>
+		public DateTimeOffset LastUpdated { get; init; }
+
 
 		public MemoryInfoResponse()
 		{
@@ -76,7 +80,7 @@ namespace Monke.Metrics.Dtos.Memory
 			this.SerialNumber = string.Empty;
 			this.MemoryType = MemoryType.Unknown;
 			this.Speed = 0;
-			this.Timestamp = DateTimeOffset.MinValue;
+			this.LastUpdated = DateTimeOffset.MinValue;
 		}
 
 		public MemoryInfoResponse(int index, Hardware.Info.Memory memory, DateTimeOffset timestamp)
@@ -93,7 +97,7 @@ namespace Monke.Metrics.Dtos.Memory
 			this.SerialNumber = memory.SerialNumber;
 			this.MemoryType = memory.MemoryType;
 			this.Speed = memory.Speed;
-			this.Timestamp = timestamp;
+			this.LastUpdated = timestamp;
 		}
 	}
 }

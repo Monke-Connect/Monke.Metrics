@@ -1,4 +1,4 @@
-﻿using Monke.Metrics.Dtos.Cpu;
+﻿using Monke.Metrics.Dtos.Cpus;
 
 namespace Monke.Metrics.Services
 {

@@ -10,8 +10,8 @@ using Monke.Metrics.Database;
 namespace Monke.Metrics.Migrations
 {
     [DbContext(typeof(MetricsDbContext))]
-    [Migration("20260720113854_InitialCreate2")]
-    partial class InitialCreate2
+    [Migration("20260723092351_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -39,6 +39,8 @@ namespace Monke.Metrics.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CpuIndex", "CoreIndex", "Timestamp");
+
                     b.ToTable("CpuCoreHistory");
                 });
 
@@ -62,7 +64,32 @@ namespace Monke.Metrics.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CpuIndex", "Timestamp");
+
                     b.ToTable("CpuHistory");
+                });
+
+            modelBuilder.Entity("Monke.Metrics.Models.Drives.VolumeHistoryEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<ulong>("FreeSpace")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<long>("Timestamp")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name", "Timestamp");
+
+                    b.ToTable("VolumeHistory");
                 });
 
             modelBuilder.Entity("Monke.Metrics.Models.Memory.MemoryHistoryEntry", b =>

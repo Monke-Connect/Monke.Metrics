@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-using Monke.Metrics.Dtos.Cpu;
+using Monke.Metrics.Dtos.Cpus;
 using Monke.Metrics.Services;
 
 namespace Monke.Metrics.Controllers
@@ -13,6 +13,7 @@ namespace Monke.Metrics.Controllers
 	public class CpuController(ILogger<CpuController> logger, ICpuService cpuService) : ControllerBase
 	{
 		private readonly ILogger<CpuController> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
 		private readonly ICpuService _cpuService = cpuService ?? throw new ArgumentNullException(nameof(cpuService));
 
 

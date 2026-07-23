@@ -2,8 +2,8 @@
 
 namespace Monke.Metrics.Caches.Memory
 {
-	[RegisterService(ServiceLifetime.Singleton, typeof(IMemoriesCache))]
-	public class MemoriesCache : IMemoriesCache
+	[RegisterService(ServiceLifetime.Singleton, typeof(IMemoryCache))]
+	public class MemoryCache : IMemoryCache
 	{
 		private readonly Lock @lock = new Lock();
 		private IReadOnlyList<Hardware.Info.Memory> value = [];

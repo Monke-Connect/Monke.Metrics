@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Monke.Metrics.Caches;
 using Monke.Metrics.Database;
 using Monke.Metrics.Models.Cpu;
+using Monke.Metrics.Models.Drives;
 using Monke.Metrics.Models.Memory;
 
 namespace Monke.Metrics.Background
@@ -50,6 +51,7 @@ namespace Monke.Metrics.Background
 				// Update the values in the cache and database
 				await this.UpdateCpuValuesAsync(context, stoppingToken);
 				await this.UpdateMemoryValuesAsync(context, stoppingToken);
+				await this.UpdateDriveValuesAsync(context, stoppingToken);
 			}
 		}
 
@@ -62,6 +64,7 @@ namespace Monke.Metrics.Background
 			this.hardwareInfo.RefreshCPUList();
 			this.hardwareInfo.RefreshMemoryStatus();
 			this.hardwareInfo.RefreshMemoryList();
+			this.hardwareInfo.RefreshDriveList();
 			return;
 		}
 
@@ -100,6 +103,7 @@ namespace Monke.Metrics.Background
 			}
 		}
 
+
 		private async Task UpdateMemoryValuesAsync(MetricsDbContext context, CancellationToken stoppingToken)
 		{
 			// Update the memory info that is saved in the cache
@@ -112,7 +116,7 @@ namespace Monke.Metrics.Background
 
 			// Update cached memory instances
 			ReadOnlyCollection<Memory> memories = this.hardwareInfo.MemoryList.AsReadOnly();
-			this.caches.MemoriesCache.Set(memories); // lock in there
+			this.caches.MemoryCache.Set(memories); // lock in there
 
 			// Update the memory history that is saved in the database
 			if (this.logger.IsEnabled(LogLevel.Debug))
@@ -121,6 +125,53 @@ namespace Monke.Metrics.Background
 			{
 				// Table: MemoryHistory
 				_ = await context.MemoryHistory.AddAsync(new MemoryHistoryEntry(memoryStatus), stoppingToken);
+				_ = await context.SaveChangesAsync(stoppingToken);
+			}
+			catch (DbUpdateException ex)
+			{
+				this.logger.LogError(ex, "An error occurred while updating the database.");
+			}
+		}
+
+		private List<Volume> GetUniqueVolumes(IReadOnlyList<Drive> drives)
+		{
+			Dictionary<string, Volume> uniqueVolumes = [];
+			foreach (Drive drive in drives)
+			{
+				foreach (Partition partition in drive.PartitionList)
+				{
+					foreach (Volume volume in partition.VolumeList)
+					{
+						bool added = uniqueVolumes.TryAdd(volume.Name, volume);
+						if (!added && this.logger.IsEnabled(LogLevel.Debug))
+							this.logger.LogDebug("Duplicate volume {name} found.", volume.Name);
+					}
+				}
+			}
+			return [.. uniqueVolumes.Values];
+		}
+
+		private async Task UpdateDriveValuesAsync(MetricsDbContext context, CancellationToken stoppingToken)
+		{
+			// Update the memory info that is saved in the cache
+			if (this.logger.IsEnabled(LogLevel.Debug))
+				this.logger.LogDebug("Updating cached drive values.");
+
+			// Update cached drive instances
+			IReadOnlyList<Drive> drives = this.hardwareInfo.DriveList.AsReadOnly();
+			this.caches.DrivesCache.Set(drives); // lock in there
+
+			// Update the memory history that is saved in the database
+			if (this.logger.IsEnabled(LogLevel.Debug))
+				this.logger.LogInformation("Updating persisted volume history.");
+			try
+			{
+				// Table: VolumeHistory
+				List<Volume> uniqueVolumes = this.GetUniqueVolumes(drives);
+				foreach (Volume volume in uniqueVolumes)
+				{
+					_ = await context.VolumeHistory.AddAsync(new VolumeHistoryEntry(volume), stoppingToken);
+				}
 				_ = await context.SaveChangesAsync(stoppingToken);
 			}
 			catch (DbUpdateException ex)

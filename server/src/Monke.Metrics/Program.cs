@@ -1,3 +1,5 @@
+using Hardware.Info;
+
 using Microsoft.EntityFrameworkCore;
 
 using Monke.Metrics.Background;
@@ -44,6 +46,24 @@ namespace Monke.Metrics
 				_ = app.MapHealthChecks("monke/metrics/health");
 				_ = app.MapControllers();
 				_ = app.MapFallbackToFile("index.html");
+
+				HardwareInfo hw = new HardwareInfo();
+				hw.RefreshDriveList();
+				foreach (Drive drive in hw.DriveList)
+				{
+					Log.Information(drive.ToString());
+					Log.Information((drive.Size / 1024d / 1024d / 1024d).ToString());
+					foreach (Partition partition in drive.PartitionList)
+					{
+						Log.Information(partition.ToString());
+						Log.Information((partition.Size / 1024d / 1024d / 1024d).ToString());
+						foreach (Volume volume in partition.VolumeList)
+						{
+							Log.Information(volume.ToString());
+							Log.Information((volume.Size / 1024d / 1024d / 1024d).ToString());
+						}
+					}
+				}
 
 				// Apply database migrations on startup and start the application
 				ApplyMigrations(app);
